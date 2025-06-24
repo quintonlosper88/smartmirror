@@ -1,13 +1,28 @@
 // src/components/widgets/News.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import * as React from "react";
+
+import {
+  Card,
+  CardContent,
+  CardTitle,
+  CardDescription,
+  CardFooter,
+} from "@/components/ui/card";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 export default function News() {
-  const [articles, setArticles] = useState<any[]>([]);
-  const [error, setError] = useState("");
+  const [articles, setArticles] = React.useState<any[]>([]);
+  const [error, setError] = React.useState("");
 
-  useEffect(() => {
+  React.useEffect(() => {
     fetch("/api/news")
       .then((res) => {
         if (!res.ok) throw new Error("Failed to load news");
@@ -23,22 +38,41 @@ export default function News() {
 
   return (
     <div className="p-4">
-      <h2 className="text-xl font-bold mb-2">Top News</h2>
-      <ul className="space-y-2">
-        {articles.slice(0, 5).map((article, index) => (
-          <li key={index} className="text-sm">
-            <a
-              href={article.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline"
-            >
-              {article.title}
-            </a>
-            <p>{article.author}</p>
-          </li>
-        ))}
-      </ul>
+      <Carousel opts={{ align: "start" }} className="w-full h-full">
+        <CarouselContent>
+          {articles.slice(0, 5).map((article, index) => (
+            <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
+              <div className="p-1">
+                <Card className="h-full flex flex-col">
+                  {/* ✅ Banner Image at Top */}
+                  {article.urlToImage && (
+                    <img
+                      src={article.urlToImage}
+                      alt={article.title}
+                      className="w-full h-48 object-cover rounded-t-lg"
+                    />
+                  )}
+
+                  {/* ✅ Card Content */}
+                  <CardContent className="flex flex-col justify-between flex-grow">
+                    <CardTitle className="mt-3 mb-2 text-base font-semibold">
+                      {article.title}
+                    </CardTitle>
+                    <CardDescription className="text-sm mb-4">
+                      {article.description}
+                    </CardDescription>
+                  </CardContent>
+
+                  {/* ✅ Footer */}
+                  <CardFooter className="text-xs text-muted-foreground px-4 pb-4">
+                    {new Date(article.publishedAt).toLocaleString()}
+                  </CardFooter>
+                </Card>
+              </div>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+      </Carousel>
     </div>
   );
 }
